@@ -27,6 +27,7 @@ public class ProminentPOC : Indicator
 {
     private double[] volumes;
     private double[] prices;
+	private Series<double> pocSeries;
 
     protected override void OnStateChange()
     {
@@ -39,11 +40,16 @@ public class ProminentPOC : Indicator
         }
         else if (State == State.Configure)
         {
+			pocSeries = new Series<double>(this, MaximumBarsLookBack.Infinite);
         }
     }
 
     protected override void OnBarUpdate()
     {
+		// Only proceed if there are at least 2 bars on the chart
+    	if (CurrentBar < 1)
+        	return;
+		
         NinjaTrader.NinjaScript.BarsTypes.VolumetricBarsType barsType = Bars.BarsSeries.BarsType as NinjaTrader.NinjaScript.BarsTypes.VolumetricBarsType;
 
         volumes = new double[(int)((High[0] - Low[0]) / TickSize) + 1];
@@ -56,15 +62,23 @@ public class ProminentPOC : Indicator
             volumes[i] = barsType.Volumes[CurrentBar].GetBidVolumeForPrice(price) + barsType.Volumes[CurrentBar].GetAskVolumeForPrice(price);
         }
 
-        int maxVolumeIndex = Array.IndexOf(volumes, volumes.Max());
+       int maxVolumeIndex = Array.IndexOf(volumes, volumes.Max());
 
-        if (prices[maxVolumeIndex] == High[0] || prices[maxVolumeIndex] == Low[0])
-        {
-			Stroke stroke = new Stroke(Brushes.Red, 2);
-            Draw.Line(this, "POC" + CurrentBar, 0, prices[maxVolumeIndex], -5, prices[maxVolumeIndex], Brushes.Red);
+//        if (prices[maxVolumeIndex] == High[0] || prices[maxVolumeIndex] == Low[0])
+//        {
+//			Stroke stroke = new Stroke(Brushes.Red, 2);
+//            Draw.Line(this, "POC" + CurrentBar, 0, prices[maxVolumeIndex], -5, prices[maxVolumeIndex], Brushes.Red);
 			
-			// Print timestamp and price level where line is drawn
-            Print("Line drawn at time " + Time[0].ToString() + " at price level " + prices[maxVolumeIndex]);
+//			// Print timestamp and price level where line is drawn
+//            Print("Line drawn at time " + Time[0].ToString() + " at price level " + prices[maxVolumeIndex]);
+//        }
+		
+		pocSeries[0] = prices[maxVolumeIndex];
+
+        // Check if the current POC matches the previous bar's POC
+        if (CurrentBar > 0 && pocSeries[0] == pocSeries[1])
+        {
+            Draw.Rectangle(this, "POCMatch" + CurrentBar, true, 1, pocSeries[0] + TickSize, -1, pocSeries[0] - TickSize, Brushes.Transparent, Brushes.Cyan, 20);
         }
     }
 }
