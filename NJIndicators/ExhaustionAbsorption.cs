@@ -82,17 +82,21 @@ namespace NinjaTrader.NinjaScript.Indicators
         // Exhaustion indicator
         if (highBidVolumePrice == High[0])  // If the high bid volume is at the high of the move
         {
-            Draw.Dot(this, "ExhaustionTop" + CurrentBar, false, 0, High[0] + 2 * TickSize, Brushes.Red);
+            //Draw.Dot(this, "ExhaustionTop" + CurrentBar, false, 0, High[0] + 2 * TickSize, Brushes.Red);
+			Draw.Dot(this, "ExhaustionDot" + CurrentBar, true, 0, Close[0] - 2 * TickSize, Brushes.Red);
         }
+		
         if (highAskVolumePrice == Low[0])  // If the high ask volume is at the low of the move
         {
-            Draw.Dot(this, "ExhaustionBottom" + CurrentBar, false, 0, Low[0] - 2 * TickSize, Brushes.Green);
+			Draw.Dot(this, "ExhaustionDot" + CurrentBar, true, 0, Low[0] - 2 * TickSize, Brushes.Green);
+            //Draw.Dot(this, "ExhaustionBottom" + CurrentBar, false, 0, Low[0] - 2 * TickSize, Brushes.Green);
         }
 
         // Absorption indicator
         if (CurrentBar > 0 && (High[0] == prevHighVolumePrice || Low[0] == prevHighVolumePrice))  // If the high or low of the current bar is at the high volume price level of the previous bar
         {
-            Draw.Dot(this, "Absorption" + CurrentBar, false, 0, prevHighVolumePrice, Brushes.Blue);
+            //Draw.Dot(this, "Absorption" + CurrentBar, false, 0, prevHighVolumePrice, Brushes.Blue);
+			Draw.Dot(this, "AbsorptionDot" + CurrentBar, true, 0, Close[0] + 2 * TickSize, Brushes.Blue);
         }
 
         prevHighVolumePrice = prices[maxVolumeIndex];
