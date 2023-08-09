@@ -26,46 +26,65 @@ namespace NinjaTrader.NinjaScript.Indicators
 {
 	public class AboveBelowPOC : Indicator
 {
+    private SharpDX.Direct2D1.Brush brushAbovePOC;
+    private SharpDX.Direct2D1.Brush brushBelowPOC;
+
     protected override void OnStateChange()
+{
+    if (State == State.SetDefaults)
     {
-        if (State == State.SetDefaults)
-        {
-            Description = "Highlights bars based on their open/close relation to POC";
-            Name = "AboveBelowPOC";
-            IsOverlay = true;
-            DrawOnPricePanel = true;
-        }
+        Description = "Highlights bars based on their open/close relation to POC";
+        Name = "AboveBelowPOC";
+        IsOverlay = true;
+        DrawOnPricePanel = true;
     }
+    else if (State == State.Configure)
+    {
+        // You can configure other things here, but maybe not the brushes yet.
+    }
+}
+
 
     protected override void OnBarUpdate()
     {
+        if (CurrentBar < 1) // Ensure we have at least two bars
+            return;
+
         NinjaTrader.NinjaScript.BarsTypes.VolumetricBarsType barsType = Bars.BarsSeries.BarsType as NinjaTrader.NinjaScript.BarsTypes.VolumetricBarsType;
 
-        double pocPrice = double.MinValue;
-        double maxVolume = double.MinValue;
-        
-        for (double price = Low[0]; price <= High[0]; price += TickSize)
-        {
-            double volumeAtPrice = barsType.Volumes[CurrentBar].GetBidVolumeForPrice(price) + barsType.Volumes[CurrentBar].GetAskVolumeForPrice(price);
-            if (volumeAtPrice > maxVolume)
-            {
-                maxVolume = volumeAtPrice;
-                pocPrice = price;
-            }
-        }
+   		double pocPrice = double.MinValue;
+    	double maxVolume = double.MinValue;
+		TimeSpan barDuration = Time[0] - Time[1]; 
+		TimeSpan halfBarDuration = TimeSpan.FromTicks(barDuration.Ticks / 2);
+		DateTime adjustedStartTime = Time[1].Add(halfBarDuration);
+		DateTime adjustedEndTime = Time[0].Add(halfBarDuration);
 
-        if (Open[0] > pocPrice && Close[0] > pocPrice)
+
+    	for (double price = Low[0]; price <= High[0]; price += TickSize)
+    	{
+       	 		double volumeAtPrice = barsType.Volumes[CurrentBar].GetBidVolumeForPrice(price) + barsType.Volumes[CurrentBar].GetAskVolumeForPrice(price);
+        	if (volumeAtPrice > maxVolume)
         {
-            // Highlight with lime green if open and close are above POC
-            Draw.RegionHighlightX(this, "AbovePOC" + CurrentBar, Time[0], Time[1], Brushes.Transparent, Brushes.LimeGreen, 50);
+            maxVolume = volumeAtPrice;
+            pocPrice = price;
         }
-        else if (Open[0] < pocPrice && Close[0] < pocPrice)
-        {
-            // Highlight with bright red if open and close are below POC
-            Draw.RegionHighlightX(this, "BelowPOC" + CurrentBar, Time[0], Time[1], Brushes.Transparent, Brushes.Red, 50);
-        }
+    	}
+
+ 	 if (Open[0] > pocPrice && Close[0] > pocPrice)
+    {
+		
+        Draw.RegionHighlightX(this, "regionAbovePOC" + CurrentBar, adjustedStartTime, adjustedEndTime, Brushes.White, Brushes.LimeGreen, 20);
+
     }
+    else if (Open[0] < pocPrice && Close[0] < pocPrice)
+    {
+		Draw.RegionHighlightX(this, "regionBelowPOC" + CurrentBar, adjustedStartTime, adjustedEndTime, Brushes.White, Brushes.Red, 20);
+
+    }
+	
+	}
 }
+
 
 }
 
