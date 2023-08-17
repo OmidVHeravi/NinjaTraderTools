@@ -48,11 +48,14 @@ namespace NinjaTrader.NinjaScript.Indicators
             
             AddPlot(Brushes.Green, "Buying Volume Rate");
             AddPlot(Brushes.Red, "Selling Volume Rate");
-        }
-        else if (State == State.Configure)
-        {
+			
+			OnlyShowRatio = true;
         }
     }
+	
+	[NinjaScriptProperty]
+	[Display(Name="Only show ratio of Buy/Sell Volume", Description="Shows the ratio Buy/Sell Volume", Order=1, GroupName="Parameters")]
+	public bool OnlyShowRatio { get; set; }
 
     protected override void OnBarUpdate()
     {
@@ -70,7 +73,7 @@ namespace NinjaTrader.NinjaScript.Indicators
         buyingVolumeCounter += askVolume; 
         sellingVolumeCounter += bidVolume; 
 
-        if (Time[0].Second != lastTimeUpdate.Second) 
+        if (Time[0].Second != lastTimeUpdate.Second)
         {
             buyingVolumeRate[0] = buyingVolumeCounter; 
             sellingVolumeRate[0] = sellingVolumeCounter; 
@@ -78,10 +81,18 @@ namespace NinjaTrader.NinjaScript.Indicators
             buyingVolumeCounter = 0;
             sellingVolumeCounter = 0;
             lastTimeUpdate = Time[0];
-        }
+        } 
+		
+		if (!OnlyShowRatio)
+		{
+			Values[0][0] = buyingVolumeRate[0];
+        	Values[1][0] = sellingVolumeRate[0];
+		}
+		else {
+			Values[0][0] = buyingVolumeRate[0]/sellingVolumeRate[0];
+		}
 
-        Values[0][0] = buyingVolumeRate[0];
-        Values[1][0] = sellingVolumeRate[0];
+       
     }
 }
 
@@ -94,18 +105,18 @@ namespace NinjaTrader.NinjaScript.Indicators
 	public partial class Indicator : NinjaTrader.Gui.NinjaScript.IndicatorRenderBase
 	{
 		private BuySellVolumeRate[] cacheBuySellVolumeRate;
-		public BuySellVolumeRate BuySellVolumeRate()
+		public BuySellVolumeRate BuySellVolumeRate(bool onlyShowRatio)
 		{
-			return BuySellVolumeRate(Input);
+			return BuySellVolumeRate(Input, onlyShowRatio);
 		}
 
-		public BuySellVolumeRate BuySellVolumeRate(ISeries<double> input)
+		public BuySellVolumeRate BuySellVolumeRate(ISeries<double> input, bool onlyShowRatio)
 		{
 			if (cacheBuySellVolumeRate != null)
 				for (int idx = 0; idx < cacheBuySellVolumeRate.Length; idx++)
-					if (cacheBuySellVolumeRate[idx] != null &&  cacheBuySellVolumeRate[idx].EqualsInput(input))
+					if (cacheBuySellVolumeRate[idx] != null && cacheBuySellVolumeRate[idx].OnlyShowRatio == onlyShowRatio && cacheBuySellVolumeRate[idx].EqualsInput(input))
 						return cacheBuySellVolumeRate[idx];
-			return CacheIndicator<BuySellVolumeRate>(new BuySellVolumeRate(), input, ref cacheBuySellVolumeRate);
+			return CacheIndicator<BuySellVolumeRate>(new BuySellVolumeRate(){ OnlyShowRatio = onlyShowRatio }, input, ref cacheBuySellVolumeRate);
 		}
 	}
 }
@@ -114,14 +125,14 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
 	public partial class MarketAnalyzerColumn : MarketAnalyzerColumnBase
 	{
-		public Indicators.BuySellVolumeRate BuySellVolumeRate()
+		public Indicators.BuySellVolumeRate BuySellVolumeRate(bool onlyShowRatio)
 		{
-			return indicator.BuySellVolumeRate(Input);
+			return indicator.BuySellVolumeRate(Input, onlyShowRatio);
 		}
 
-		public Indicators.BuySellVolumeRate BuySellVolumeRate(ISeries<double> input )
+		public Indicators.BuySellVolumeRate BuySellVolumeRate(ISeries<double> input , bool onlyShowRatio)
 		{
-			return indicator.BuySellVolumeRate(input);
+			return indicator.BuySellVolumeRate(input, onlyShowRatio);
 		}
 	}
 }
@@ -130,14 +141,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 {
 	public partial class Strategy : NinjaTrader.Gui.NinjaScript.StrategyRenderBase
 	{
-		public Indicators.BuySellVolumeRate BuySellVolumeRate()
+		public Indicators.BuySellVolumeRate BuySellVolumeRate(bool onlyShowRatio)
 		{
-			return indicator.BuySellVolumeRate(Input);
+			return indicator.BuySellVolumeRate(Input, onlyShowRatio);
 		}
 
-		public Indicators.BuySellVolumeRate BuySellVolumeRate(ISeries<double> input )
+		public Indicators.BuySellVolumeRate BuySellVolumeRate(ISeries<double> input , bool onlyShowRatio)
 		{
-			return indicator.BuySellVolumeRate(input);
+			return indicator.BuySellVolumeRate(input, onlyShowRatio);
 		}
 	}
 }
