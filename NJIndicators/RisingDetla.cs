@@ -51,6 +51,9 @@ namespace NinjaTrader.NinjaScript.Indicators
             NinjaTrader.NinjaScript.BarsTypes.VolumetricBarsType barsType = Bars.BarsSeries.BarsType as NinjaTrader.NinjaScript.BarsTypes.VolumetricBarsType;
             double currentDelta = barsType.Volumes[CurrentBar].BarDelta;
 
+			Print("Bar" + CurrentBar + "Delta =" + currentDelta);
+			Print("Last Delta =" + lastDelta + "Consecutive Count =" + consecutiveRisingDelta); // Debug print
+			
             if (currentDelta > lastDelta)
                 consecutiveRisingDelta++;
             else
