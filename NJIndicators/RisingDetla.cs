@@ -45,7 +45,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 
         protected override void OnBarUpdate()
         {
-            if (CurrentBar < 1) // Ensure we have at least one previous bar
+            if (CurrentBar < 2) // Ensure we have at least one previous bar
                 return;
 
             NinjaTrader.NinjaScript.BarsTypes.VolumetricBarsType barsType = Bars.BarsSeries.BarsType as NinjaTrader.NinjaScript.BarsTypes.VolumetricBarsType;
