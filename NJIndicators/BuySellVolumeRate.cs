@@ -33,7 +33,11 @@ namespace NinjaTrader.NinjaScript.Indicators
 
     private double buyingVolumeCounter = 0;
     private double sellingVolumeCounter = 0;
+	private double rate1 = 0;
+	private double rate2 = 0;
     private DateTime lastTimeUpdate;
+	private BuySellVolumeRate buySellVolumeRateIndicator;
+
 
     protected override void OnStateChange()
     {
@@ -50,6 +54,7 @@ namespace NinjaTrader.NinjaScript.Indicators
             AddPlot(Brushes.Red, "Selling Volume Rate");
 			
 			OnlyShowRatio = true;
+			
         }
     }
 	
@@ -85,11 +90,33 @@ namespace NinjaTrader.NinjaScript.Indicators
 		
 		if (!OnlyShowRatio)
 		{
-			Values[0][0] = buyingVolumeRate[0];
-        	Values[1][0] = sellingVolumeRate[0];
+			//Values[0][0] = buyingVolumeRate[0];
+        	//Values[1][0] = sellingVolumeRate[0];
+			double rate1 = buyingVolumeRate[0] / sellingVolumeRate[0];
+			double rate2 = buyingVolumeRate[1] / sellingVolumeRate[1];
+
+			// Calculating the "derivative" or rate of change
+			double rateChange = rate1 - rate2;
+
+			// Apply the arctan transformation
+			double transformedRateChange = Math.Atan(rateChange);
+
+			Values[0][0] = transformedRateChange;
+			
 		}
 		else {
-			Values[0][0] = buyingVolumeRate[0]/sellingVolumeRate[0];
+			double rate1 = buyingVolumeRate[0] / sellingVolumeRate[0];
+			double rate2 = buyingVolumeRate[1] / sellingVolumeRate[1];
+
+			// Calculating the "derivative" or rate of change
+			double rateChange = rate1 - rate2;
+
+			// Apply the arctan transformation
+			double transformedRateChange = Math.Atan(rateChange);
+
+			Values[0][0] = transformedRateChange;
+
+
 		}
 
        
