@@ -58,53 +58,58 @@ namespace NinjaTrader.NinjaScript.Indicators
             }
             else if (State == State.Configure)
    			 {
-        // Create an instance of the VWAP, Bollinger Bands, and RSI
-        vwap = OrderFlowVWAP(VWAPResolution.Standard, null, VWAPStandardDeviations.Three, 1, 1, 1);
-        bollinger = Bollinger(2, 14);
-        rsi = RSI(14, 3);
-    		}
+        		// Create an instance of the VWAP, Bollinger Bands, and RSI
+        		vwap = OrderFlowVWAP(VWAPResolution.Standard, Bars.TradingHours, VWAPStandardDeviations.Two, 1, 2, 3);
+        		bollinger = Bollinger(2, 21);
+        		rsi = RSI(14, 2);
+			}
         }
 
         protected override void OnBarUpdate()
         {
-			Print("Bar" + Time[0]);
-    Print("VWAP:" + vwap.VWAP[0]);
-    Print("Close:" + Close[0]);
-    Print("RSI:" + rsi.Value[0]);
-    Print("Bollinger Upper:" + bollinger.Upper[0]);
-    Print("Bollinger Lower:" + bollinger.Lower[0]);
+//			Print("Bar" + Time[0]);
+//    		Print("VWAP:" + vwap.VWAP[0]);
+//    		Print("Close:" + Close[0]);
+//    		Print("RSI:" + rsi.Value[0]);
+//    		Print("Bollinger Upper:" + bollinger.Upper[0]);
+//    		Print("Bollinger Lower:" + bollinger.Lower[0]);
 			
-            // Check if we have enough bars
     if (CurrentBar < 15) return;
 
-    // Access the VWAP, Bollinger Bands, and RSI values
-    double vwapValue = vwap.VWAP[0];
+    double vwapValue = vwap.VWAP[13];  // Notice I used [15] because we're looking at the VWAP from 15 bars ago.
     double upperBand = bollinger.Upper[0];
     double lowerBand = bollinger.Lower[0];
     double rsiValue = rsi[0];
 
-    // Use VWAP, Bollinger Bands, and RSI to generate signals
-    if (Close[0] > vwapValue && Close[0] > upperBand && rsiValue > 55)
+    // Bullish Condition
+    if (Close[0] > vwapValue && rsiValue < 40 && Close[0] < lowerBand)
     {
-		Print("Sell Condition Met");
-        Draw.Text(this, "SellSignal" + CurrentBar, "S", 0, High[0], Brushes.Red);
+		Print(" Buy Bar" + Time[0]);
+        Draw.Text(this, "B" + CurrentBar, "B", 0, Low[0] - TickSize * 5, Brushes.Cyan);
     }
-    else if (Close[0] < vwapValue && Close[0] < lowerBand && rsiValue < 45)
+
+    // Bearish Condition
+    if (Close[0] < vwapValue && rsiValue > 60 && Close[0] > upperBand)
     {
-		Print("Buy Condition Met");
-        Draw.Text(this, "BuySignal" + CurrentBar, "B", 0, Low[0], Brushes.Cyan);
+		Print(" Sell Bar" + Time[0]);
+        Draw.Text(this, "S" + CurrentBar, "S", 0, High[0] + TickSize * 5, Brushes.Red);
     }
+	
 		}
 
-        #region Properties
-        [Browsable(false)]
-        [XmlIgnore()]
-        public Series<double> Value
-        {
-            get { return Values[0]; }
-        }
-        #endregion
-    }
+
+		}
+
+//        #region Properties
+//        [Browsable(false)]
+//        [XmlIgnore()]
+//        public Series<double> Value
+//        {
+//            get { return Values[0]; }
+//        }
+//        #endregion
+ 
+
 }
 
 //This namespace holds Indicators in this folder and is required. Do not change it. 
