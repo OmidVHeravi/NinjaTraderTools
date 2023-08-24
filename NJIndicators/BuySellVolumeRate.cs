@@ -69,7 +69,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 		else if (State == State.DataLoaded)
     	{
 
-			//buySellVolumeRateMA = SMA(buySellVolumeRateDifference, 5);
+			buySellVolumeRateMA = SMA(buySellVolumeRateDifference, 5);
     	}
     }
 	
@@ -79,18 +79,18 @@ namespace NinjaTrader.NinjaScript.Indicators
 
     protected override void OnBarUpdate()
     {
-        if (CurrentBar == 0)
-        {
-            lastTimeUpdate = Time[0];
-            return;
-        }
+//        if (CurrentBar == 0)
+//        {
+//            lastTimeUpdate = Time[0];
+//            return;
+//        }
 		
-		buySellVolumeRateDifference[CurrentBar] = buyingVolumeRate[0] - sellingVolumeRate[0];
+		//buySellVolumeRateDifference[0] = buyingVolumeRate[0] - sellingVolumeRate[0];
 		
-		if (CurrentBar > 5) 
-		{
-			buySellVolumeRateMA = SMA(buySellVolumeRateDifference, 5);
-		}
+//		if (CurrentBar > 5) 
+//		{
+//			buySellVolumeRateMA = SMA(buySellVolumeRateDifference, 5);
+//		}
 
         NinjaTrader.NinjaScript.BarsTypes.VolumetricBarsType barsType = Bars.BarsSeries.BarsType as NinjaTrader.NinjaScript.BarsTypes.VolumetricBarsType;
 
@@ -113,27 +113,63 @@ namespace NinjaTrader.NinjaScript.Indicators
 		if (OnlyShowRatio)
 		{
 			
-			buySellVolumeRateDifference[CurrentBar] = buyingVolumeRate[CurrentBar] - sellingVolumeRate[CurrentBar];
+			buySellVolumeRateDifference[0] = buyingVolumeRate[0] - sellingVolumeRate[0];
+			Print("Time: " + Time[0]);
+			Print("buySellVolumeRateDifference[CurrentBar] :" + buySellVolumeRateDifference[0]);
+			Print("buyingVolumeRate[CurrentBar]: " + buyingVolumeRate[0]);
+			Print("sellingVolumeRate[CurrentBar]: " + sellingVolumeRate[0]);
+			
 			
 			double rate1 = buyingVolumeRate[0] / sellingVolumeRate[0];
 			double rate2 = buyingVolumeRate[1] / sellingVolumeRate[1];
+			  
 			
 			
 			if (CurrentBar > 5) 
 			{
-				Print(buySellVolumeRateMA[CurrentBar]);
-				transformedRateChange1 = Math.Atan((rate1 - rate2)/buySellVolumeRateMA[CurrentBar]);
-				
+				transformedRateChange1 = Math.Atan((rate1 - rate2)/buySellVolumeRateMA[0]);
+				Print("g");
 			}
 			else 
 			{
 				 transformedRateChange1 = Math.Atan(rate1 - rate2);
 			}
 			
+			
+			Print(transformedRateChange1);
+			
 			Values[0][0] = transformedRateChange1;
 			
 		}
 		else {
+			
+			buySellVolumeRateDifference[0] = buyingVolumeRate[0] - sellingVolumeRate[0];
+			Print("Time: " + Time[0]);
+			Print("buySellVolumeRateDifference[CurrentBar] :" + buySellVolumeRateDifference[0]);
+			Print("buyingVolumeRate[CurrentBar]: " + buyingVolumeRate[0]);
+			Print("sellingVolumeRate[CurrentBar]: " + sellingVolumeRate[0]);
+			
+			
+			double rate1 = buyingVolumeRate[0] / sellingVolumeRate[0];
+			double rate2 = buyingVolumeRate[1] / sellingVolumeRate[1];
+			  
+			
+			
+			if (CurrentBar > 5) 
+			{
+				transformedRateChange1 = Math.Atan((rate1 - rate2)/buySellVolumeRateMA[0]);
+				Print("g");
+			}
+			else 
+			{
+				 transformedRateChange1 = Math.Atan(rate1 - rate2);
+			}
+			
+			
+			Print(transformedRateChange1);
+			
+			Values[0][0] = transformedRateChange1;
+			
 			
 
 		}
