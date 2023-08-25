@@ -79,18 +79,6 @@ namespace NinjaTrader.NinjaScript.Indicators
 
     protected override void OnBarUpdate()
     {
-//        if (CurrentBar == 0)
-//        {
-//            lastTimeUpdate = Time[0];
-//            return;
-//        }
-		
-		//buySellVolumeRateDifference[0] = buyingVolumeRate[0] - sellingVolumeRate[0];
-		
-//		if (CurrentBar > 5) 
-//		{
-//			buySellVolumeRateMA = SMA(buySellVolumeRateDifference, 5);
-//		}
 
         NinjaTrader.NinjaScript.BarsTypes.VolumetricBarsType barsType = Bars.BarsSeries.BarsType as NinjaTrader.NinjaScript.BarsTypes.VolumetricBarsType;
 
@@ -114,10 +102,6 @@ namespace NinjaTrader.NinjaScript.Indicators
 		{
 			
 			buySellVolumeRateDifference[0] = buyingVolumeRate[0] - sellingVolumeRate[0];
-			Print("Time: " + Time[0]);
-			Print("buySellVolumeRateDifference[CurrentBar] :" + buySellVolumeRateDifference[0]);
-			Print("buyingVolumeRate[CurrentBar]: " + buyingVolumeRate[0]);
-			Print("sellingVolumeRate[CurrentBar]: " + sellingVolumeRate[0]);
 			
 			
 			double rate1 = buyingVolumeRate[0] / sellingVolumeRate[0];
@@ -144,10 +128,6 @@ namespace NinjaTrader.NinjaScript.Indicators
 		else {
 			
 			buySellVolumeRateDifference[0] = buyingVolumeRate[0] - sellingVolumeRate[0];
-			Print("Time: " + Time[0]);
-			Print("buySellVolumeRateDifference[CurrentBar] :" + buySellVolumeRateDifference[0]);
-			Print("buyingVolumeRate[CurrentBar]: " + buyingVolumeRate[0]);
-			Print("sellingVolumeRate[CurrentBar]: " + sellingVolumeRate[0]);
 			
 			
 			double rate1 = buyingVolumeRate[0] / sellingVolumeRate[0];
@@ -157,8 +137,9 @@ namespace NinjaTrader.NinjaScript.Indicators
 			
 			if (CurrentBar > 5) 
 			{
-				transformedRateChange1 = Math.Atan((rate1 - rate2)/buySellVolumeRateMA[0]);
-				Print("g");
+				
+				//transformedRateChange1 = Math.Atan((rate1 - rate2));
+				transformedRateChange1 = Math.Atan(buySellVolumeRateMA[0]);
 			}
 			else 
 			{
