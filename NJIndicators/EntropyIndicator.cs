@@ -29,9 +29,12 @@ namespace NinjaTrader.NinjaScript.Indicators
     public class EntropyIndicator : Indicator
     {
         private double[] volumeBins;
-        private int numberOfBins = 10; // You can adjust this as needed
+        private int numberOfBins = 3; // You can adjust this as needed
         private double minVolume;
         private double maxVolume;
+		
+		private Series<double> entropyValues;
+
 
         protected override void OnStateChange()
         {
@@ -48,8 +51,8 @@ namespace NinjaTrader.NinjaScript.Indicators
                 PaintPriceMarkers = true;
                 ScaleJustification = NinjaTrader.Gui.Chart.ScaleJustification.Right;
 				
-				//AddPlot(Brushes.Orange, "Entropy");
 
+				AddPlot(Brushes.Blue, "Entropy");
             }
             else if (State == State.Configure)
             {
@@ -58,6 +61,10 @@ namespace NinjaTrader.NinjaScript.Indicators
             {
 				Print("Init");
                 volumeBins = new double[numberOfBins];
+				
+				volumeBins = new double[numberOfBins];
+        		entropyValues = new Series<double>(this, MaximumBarsLookBack.Infinite);
+
             }
         }
 
@@ -78,6 +85,8 @@ namespace NinjaTrader.NinjaScript.Indicators
 				Print("1");
                 volumeBins[i] = 0;
             }
+			
+			Print("Bins reset.");
 
             // Determine min and max volume for range
             minVolume = double.MaxValue;
@@ -136,17 +145,18 @@ namespace NinjaTrader.NinjaScript.Indicators
 				Print("i: " + i);
     			Print("Accessing volumeBins[" + i + "] of " + volumeBins.Length);
 				if (i >= volumeBins.Length)
-{
-    Print("Error: Trying to access out-of-bounds index in volumeBins. Current index: " + i);
-    return;
-}
-double probability = volumeBins[i] / totalVolume;
+			{
+    			Print("Error: Trying to access out-of-bounds index in volumeBins. Current index: " + i);
+    			return;
+			}
+				
+			double probability = volumeBins[i] / totalVolume;
 
-    			//double probability = volumeBins[i] / totalVolume;
-    			Print("Probability for bin " + i + ": " + probability);
-    			if (probability > 0)  // only compute if probability is not zero
+    		//double probability = volumeBins[i] / totalVolume;
+    		Print("Probability for bin " + i + ": " + probability);
+    		if (probability > 0)  // only compute if probability is not zero
     			{
-        			double logValue = Math.Log(probability, 2);
+        			double logValue = Math.Log(probability, 10);
         			Print("Log Value for bin " + i + ": " + logValue);
         			entropy -= probability * logValue;
     			}
@@ -155,7 +165,12 @@ double probability = volumeBins[i] / totalVolume;
 
 			Print("F");
 
-           	Value[0] = (entropy);
+			//Print("Value is: " + Value[0]);			
+           	// Assign entropy to custom series
+    		entropyValues[0] = entropy;
+
+    		// Also update the plot
+    		Values[0][0] = 100 * entropy;
 			
 			Print("G");
 
