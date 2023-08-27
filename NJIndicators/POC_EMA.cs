@@ -30,6 +30,7 @@ namespace NinjaTrader.NinjaScript.Indicators
     private double[] prices;
     private Series<double> pocSeries;
     private EMA ema;
+	private double emaPrice;
 
     [Range(1, int.MaxValue), NinjaScriptProperty]
     [Display(Name="Period", Description="Period for the EMA", Order=1, GroupName="Parameters")]
@@ -91,13 +92,18 @@ namespace NinjaTrader.NinjaScript.Indicators
     {
         if (ema[0] >= Low[0] && ema[0] <= High[0] && ema[1] >= Low[1] && ema[1] <= High[1])
         {
-            Draw.Line(this, "POC_EMA" + CurrentBar, false, 0, ema[0], -1, ema[1], EmaColor, DashStyleHelper.Solid, LineWidth);
+            //Draw.Line(this, "POC_EMA" + CurrentBar, false, 0, ema[0], -1, ema[1], EmaColor, DashStyleHelper.Solid, LineWidth);
+			//Draw.Dot(this, "POC_EMA" + CurrentBar, false, 0, ema[0], EmaColor);
+			emaPrice = ema[0];
         }
         else
         {
-            Draw.Dot(this, "POC_EMA" + CurrentBar, false, 0, ema[0], EmaColor);
+            //Draw.Dot(this, "POC_EMA" + CurrentBar, false, 0, ema[0], EmaColor);
+			emaPrice = ema[0];
         }
     }
+	
+	Value[0] = emaPrice;
 
     }
 }
