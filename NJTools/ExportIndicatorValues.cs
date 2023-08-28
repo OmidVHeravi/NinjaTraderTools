@@ -10,6 +10,9 @@ namespace NinjaTrader.NinjaScript.Strategies
     public class ExportIndicatorValues : Strategy
     {
         private Indicators.BuySellVolumeRate volumeRateIndicator;
+		private Indicators.POC_EMA pocEMA1;
+		private Indicators.POC_EMA pocEMA2;
+		private Indicators.EntropyIndicator EntropyVal;
 
         private StreamWriter sw;
 
@@ -22,27 +25,42 @@ namespace NinjaTrader.NinjaScript.Strategies
             }
             else if (State == State.Configure)
             {
-                volumeRateIndicator = BuySellVolumeRate(Input, false);; // Initialize the indicator instance
+                volumeRateIndicator = BuySellVolumeRate(Input, true);
+				if (volumeRateIndicator == null){ Print("This1");}
+				pocEMA1 = POC_EMA(21,1);
+				pocEMA2 = POC_EMA(4,1);
+				EntropyVal = EntropyIndicator(Input);
+				if (EntropyVal == null){ Print("This2");}
             }
             else if (State == State.DataLoaded)
             {
-                string path = @"C:\Users\omid\Desktop\Data\BuySellVolumeRate.csv";
+				
+                string path = @"C:\Users\omid\Desktop\Data\datavals.csv";
                 sw = new StreamWriter(path, true);
-                sw.WriteLine("DateTime, BuySellVolumeRateValue, Close, Open"); // Write the header once
+                sw.WriteLine(" PreviousBarClose, CurrentBarClose, POCDiff, EntropyValue, BuySellRate"); // Write the header once
             }
             else if (State == State.Terminated)
             {
-                sw.Close(); // Close the StreamWriter when the strategy terminates
+                if (sw != null)
+				{
+    				sw.Close();
+				}
+
             }
         }
-
-        protected override void OnBarUpdate()
-        {
-            if (CurrentBar < 1) // Ensure we have at least one bar
+		
+		protected override void OnBarUpdate()
+		{
+           	if (CurrentBar < BarsRequiredToPlot)
                 return;
 
-            // Export the current bar's data
-            sw.WriteLine(Time[CurrentBar].ToString("yyyy-MM-dd HH:mm:ss") + ", " + volumeRateIndicator.Values[0][0] + ", " + Close[0] + ", " + Open[0]);
+            double pocDifference = pocEMA1[0] - pocEMA2[0];
+			Print("pocDifference" + pocDifference);
+			Print("EntropyVal" + EntropyVal[0]);
+			Print("volumeRateIndicator" + volumeRateIndicator[0]);
+			
+			sw.WriteLine(Close[1] + ", " + Close[0] + ", " + pocDifference + ", " + EntropyVal[0] + ", " + volumeRateIndicator[0]);
+
         }
     }
 }
